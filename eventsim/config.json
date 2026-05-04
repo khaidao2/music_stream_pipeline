@@ -1,0 +1,11 @@
+{
+  "topics": {
+    "listen_events": "listen_events",
+    "page_view_events": "page_view_events",
+    "auth_events": "auth_events"
+  },
+  "users": {
+    "count": 1000,
+    "growth": 0.1
+  }
+}
