@@ -1,7 +1,4 @@
 FROM trivadis/eventsim:latest
 
-# Thiết lập thư mục làm việc
-WORKDIR /src
-
-# File config sẽ được mount qua volume trong docker-compose, 
-# nhưng ta vẫn khai báo WORKDIR để đồng bộ đường dẫn.
+# Không thay đổi WORKDIR để giữ nguyên logic tìm JAR của entrypoint
+# Default WORKDIR của image này là /opt/eventsim
