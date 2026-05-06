@@ -1,0 +1,5 @@
+requests==2.31.0
+confluent-kafka==2.3.0
+python-dotenv==1.0.1
+avro==1.11.3
+pyspark==3.5.1

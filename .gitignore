@@ -15,12 +15,18 @@ airflow/airflow.cfg
 # Python
 # ======================
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
+*.py[cod]
 *.log
+
+# Env files
 .env
-.venv
+.env.*
+
+# Virtual environments (QUAN TRỌNG)
+.venv/
+venv/
+env/
+ENV/
 
 # ======================
 # Spark
@@ -41,3 +47,19 @@ Thumbs.db
 # ======================
 *.tmp
 *.swp
+# ======================
+# Security & Credentials
+# ======================
+keys/
+*.json
+!*.avsc
+
+# ======================
+# Terraform
+# ======================
+.terraform/
+*.tfstate
+*.tfstate.backup
+.terraform.lock.hcl
+lesson/
+AGENTS.md

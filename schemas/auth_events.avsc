@@ -1,0 +1,23 @@
+{
+  "type": "record",
+  "name": "AuthEvent",
+  "namespace": "io.musicstream.events",
+  "fields": [
+    {"name": "ts", "type": "long"},
+    {"name": "sessionId", "type": "long"},
+    {"name": "level", "type": "string"},
+    {"name": "itemInSession", "type": "int"},
+    {"name": "city", "type": ["null", "string"], "default": null},
+    {"name": "zip", "type": ["null", "string"], "default": null},
+    {"name": "state", "type": ["null", "string"], "default": null},
+    {"name": "userAgent", "type": ["null", "string"], "default": null},
+    {"name": "lon", "type": ["null", "double"], "default": null},
+    {"name": "lat", "type": ["null", "double"], "default": null},
+    {"name": "userId", "type": ["null", "long"], "default": null},
+    {"name": "lastName", "type": ["null", "string"], "default": null},
+    {"name": "firstName", "type": ["null", "string"], "default": null},
+    {"name": "gender", "type": ["null", "string"], "default": null},
+    {"name": "registration", "type": ["null", "long"], "default": null},
+    {"name": "success", "type": "boolean"}
+  ]
+}

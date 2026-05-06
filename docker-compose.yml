@@ -18,6 +18,8 @@ services:
       --growth-rate 0
       --kafkaBrokerList music_kafka:29092
       --continuous
+    environment:
+      EVENTSIM_LOG_LEVEL: "INFO"
     restart: on-failure
   music_zookeeper:
     image: confluentinc/cp-zookeeper:7.6.0
@@ -30,7 +32,8 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
       KAFKA_OPTS: "-Dzookeeper.4lw.commands.whitelist=ruok"
     volumes:
-      - ./volumes/zookeeper:/var/lib/zookeeper/data
+      - ./volumes/zookeeper/data:/var/lib/zookeeper/data
+      - ./volumes/zookeeper/log:/var/lib/zookeeper/log
     mem_limit: 256m
     healthcheck:
       test: ["CMD", "bash", "-c", "echo 'ruok' | nc localhost 2181 | grep imok"]
@@ -130,7 +133,7 @@ services:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__CORE__LOAD_EXAMPLES: "false"
     entrypoint: ["/bin/bash", "-c"]
-    command: 
+    command:
       - |
         airflow db migrate &&
         airflow users create \
@@ -159,11 +162,15 @@ services:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__CORE__LOAD_EXAMPLES: "false"
       AIRFLOW__WEBSERVER__SECRET_KEY: "musicstream-secret-key-change-in-prod"
+      AIRFLOW_CONN_GOOGLE_CLOUD_DEFAULT: "google-cloud-platform://?extra__google_cloud_platform__project=${GCP_PROJECT_ID}&extra__google_cloud_platform__key_path=${AIRFLOW_GCP_KEYFILE_PATH_IN_CONTAINER}"
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/logs:/opt/airflow/logs
       - ./airflow/plugins:/opt/airflow/plugins
-    mem_limit: 512m
+      - ./config:/opt/airflow/dags/config
+      - ./keys:/opt/airflow/keys:ro
+    user: "1000:0"
+    mem_limit: 2.5G
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
       interval: 30s
@@ -187,29 +194,42 @@ services:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__CORE__LOAD_EXAMPLES: "false"
       AIRFLOW__WEBSERVER__SECRET_KEY: "musicstream-secret-key-change-in-prod"
+      AIRFLOW_CONN_GOOGLE_CLOUD_DEFAULT: "google-cloud-platform://?extra__google_cloud_platform__project=${GCP_PROJECT_ID}&extra__google_cloud_platform__key_path=${AIRFLOW_GCP_KEYFILE_PATH_IN_CONTAINER}"
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/logs:/opt/airflow/logs
       - ./airflow/plugins:/opt/airflow/plugins
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./config:/opt/airflow/dags/config
+      - ./keys:/opt/airflow/keys:ro
+    user: "1000:0"
+    group_add:
+      - "984"
     mem_limit: 512m
     command: scheduler
   music_spark_master:
     image: apache/spark:3.5.1
     container_name: music_spark_master
+    hostname: music-spark-master
     restart: unless-stopped
     networks:
       - music-net
     environment:
-      - SPARK_MASTER_HOST=music_spark_master
-      - SPARK_LOCAL_IP=music_spark_master
+      - SPARK_MASTER_HOST=music-spark-master
+      - SPARK_LOCAL_IP=music-spark-master
       - SPARK_RPC_AUTHENTICATION_ENABLED=no
       - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - GOOGLE_APPLICATION_CREDENTIALS=/opt/spark/keys/key.json
     ports:
       - "7077:7077"
       - "8083:8080"
     volumes:
-      - ./spark/jobs:/opt/bitnami/spark/jobs
-    mem_limit: 512m
+      - ./spark/jobs:/opt/spark/jobs
+      - ./schemas:/opt/spark/schemas
+      - ./spark/libs:/opt/spark/libs
+      - ./keys:/opt/spark/keys
+      - ./spark/libs:/opt/spark/libs
+    mem_limit: 1G
     command: ["/opt/spark/bin/spark-class", "org.apache.spark.deploy.master.Master"]
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://music_spark_master:8080 || exit 1"]
@@ -228,16 +248,20 @@ services:
       music_spark_master:
         condition: service_healthy
     environment:
-      - SPARK_MASTER_URL=spark://music_spark_master:7077
-      - SPARK_WORKER_MEMORY=1G
+      - SPARK_MASTER=spark://music-spark-master:7077
+      - SPARK_WORKER_MEMORY=2G
       - SPARK_WORKER_CORES=2
       - SPARK_LOCAL_IP=music_spark_worker
       - SPARK_RPC_AUTHENTICATION_ENABLED=no
       - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - GOOGLE_APPLICATION_CREDENTIALS=/opt/spark/keys/key.json
     volumes:
-      - ./spark/jobs:/opt/bitnami/spark/jobs
-    mem_limit: 1200m
-    command: ["/opt/spark/bin/spark-class", "org.apache.spark.deploy.worker.Worker", "spark://music_spark_master:7077"]
+      - ./spark/jobs:/opt/spark/jobs
+      - ./schemas:/opt/spark/schemas
+      - ./spark/libs:/opt/spark/libs
+      - ./keys:/opt/spark/keys
+    mem_limit: 2.5G
+    command: ["/opt/spark/bin/spark-class", "org.apache.spark.deploy.worker.Worker", "spark://music-spark-master:7077"]
 
 networks:
   music-net:

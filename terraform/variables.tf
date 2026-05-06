@@ -5,7 +5,7 @@ variable "project_id" {
 
 variable "region" {
   description = "GCP Region"
-  default     = "asia-southeast1" # Bạn có thể đổi sang region gần bạn hơn
+  default     = "asia-southeast1"
 }
 
 variable "storage_class" {

@@ -1,0 +1,242 @@
+{
+  "version": 4,
+  "terraform_version": "1.14.8",
+  "serial": 36,
+  "lineage": "1999a566-ba5c-365a-d839-3d1e4c4faed7",
+  "outputs": {
+    "bigquery_dataset": {
+      "value": "music_stream_warehouse",
+      "type": "string"
+    },
+    "data_lake_bucket": {
+      "value": "music-stream-data-lake-realestate-492305",
+      "type": "string"
+    }
+  },
+  "resources": [
+    {
+      "mode": "managed",
+      "type": "google_bigquery_dataset",
+      "name": "warehouse",
+      "provider": "provider[\"registry.terraform.io/hashicorp/google\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "access": [
+              {
+                "dataset": [],
+                "domain": "",
+                "group_by_email": "",
+                "role": "OWNER",
+                "routine": [],
+                "special_group": "",
+                "user_by_email": "terraform-sa@realestate-492305.iam.gserviceaccount.com",
+                "view": []
+              },
+              {
+                "dataset": [],
+                "domain": "",
+                "group_by_email": "",
+                "role": "OWNER",
+                "routine": [],
+                "special_group": "projectOwners",
+                "user_by_email": "",
+                "view": []
+              },
+              {
+                "dataset": [],
+                "domain": "",
+                "group_by_email": "",
+                "role": "READER",
+                "routine": [],
+                "special_group": "projectReaders",
+                "user_by_email": "",
+                "view": []
+              },
+              {
+                "dataset": [],
+                "domain": "",
+                "group_by_email": "",
+                "role": "WRITER",
+                "routine": [],
+                "special_group": "projectWriters",
+                "user_by_email": "",
+                "view": []
+              }
+            ],
+            "creation_time": 1777976127827,
+            "dataset_id": "music_stream_warehouse",
+            "default_collation": "",
+            "default_encryption_configuration": [],
+            "default_partition_expiration_ms": 0,
+            "default_table_expiration_ms": 0,
+            "delete_contents_on_destroy": false,
+            "description": "Music Streaming Warehouse",
+            "etag": "KcjCs/iY0gJ/vkp2oEdcng==",
+            "friendly_name": "",
+            "id": "projects/realestate-492305/datasets/music_stream_warehouse",
+            "is_case_insensitive": false,
+            "labels": {},
+            "last_modified_time": 1777976127827,
+            "location": "asia-southeast1",
+            "max_time_travel_hours": "168",
+            "project": "realestate-492305",
+            "self_link": "https://bigquery.googleapis.com/bigquery/v2/projects/realestate-492305/datasets/music_stream_warehouse",
+            "storage_billing_model": "",
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxMjAwMDAwMDAwMDAwLCJkZWxldGUiOjEyMDAwMDAwMDAwMDAsInVwZGF0ZSI6MTIwMDAwMDAwMDAwMH19"
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "google_bigquery_table",
+      "name": "page_view_events",
+      "provider": "provider[\"registry.terraform.io/hashicorp/google\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "clustering": null,
+            "creation_time": 1777993006357,
+            "dataset_id": "music_stream_warehouse",
+            "deletion_protection": true,
+            "description": "",
+            "encryption_configuration": [],
+            "etag": "e4LtQsOqxsfnM4iq2FbqDw==",
+            "expiration_time": 0,
+            "external_data_configuration": [
+              {
+                "autodetect": true,
+                "avro_options": [],
+                "compression": "NONE",
+                "connection_id": "",
+                "csv_options": [],
+                "file_set_spec_type": "",
+                "google_sheets_options": [],
+                "hive_partitioning_options": [
+                  {
+                    "mode": "AUTO",
+                    "require_partition_filter": false,
+                    "source_uri_prefix": "gs://music-stream-data-lake-realestate-492305/raw/page_view_events"
+                  }
+                ],
+                "ignore_unknown_values": false,
+                "json_options": [],
+                "max_bad_records": 0,
+                "metadata_cache_mode": "",
+                "object_metadata": "",
+                "parquet_options": [],
+                "reference_file_schema_uri": "",
+                "schema": "",
+                "source_format": "PARQUET",
+                "source_uris": [
+                  "gs://music-stream-data-lake-realestate-492305/raw/page_view_events/year=*"
+                ]
+              }
+            ],
+            "friendly_name": "",
+            "id": "projects/realestate-492305/datasets/music_stream_warehouse/tables/page_view_events",
+            "labels": {},
+            "last_modified_time": 1777993900656,
+            "location": "asia-southeast1",
+            "materialized_view": [],
+            "max_staleness": "",
+            "num_bytes": 0,
+            "num_long_term_bytes": 0,
+            "num_rows": 0,
+            "project": "realestate-492305",
+            "range_partitioning": [],
+            "schema": "[{\"mode\":\"NULLABLE\",\"name\":\"ts\",\"type\":\"INTEGER\"},{\"mode\":\"NULLABLE\",\"name\":\"sessionId\",\"type\":\"INTEGER\"},{\"mode\":\"NULLABLE\",\"name\":\"page\",\"type\":\"STRING\"},{\"mode\":\"NULLABLE\",\"name\":\"auth\",\"type\":\"STRING\"},{\"mode\":\"NULLABLE\",\"name\":\"method\",\"type\":\"STRING\"},{\"mode\":\"NULLABLE\",\"name\":\"status\",\"type\":\"INTEGER\"},{\"mode\":\"NULLABLE\",\"name\":\"level\",\"type\":\"STRING\"},{\"mode\":\"NULLABLE\",\"name\":\"itemInSession\",\"type\":\"INTEGER\"},{\"mode\":\"NULLABLE\",\"name\":\"city\",\"type\":\"STRING\"},{\"mode\":\"NULLABLE\",\"name\":\"zip\",\"type\":\"STRING\"},{\"mode\":\"NULLABLE\",\"name\":\"state\",\"type\":\"STRING\"},{\"mode\":\"NULLABLE\",\"name\":\"userAgent\",\"type\":\"STRING\"},{\"mode\":\"NULLABLE\",\"name\":\"lon\",\"type\":\"STRING\"},{\"mode\":\"NULLABLE\",\"name\":\"lat\",\"type\":\"STRING\"},{\"mode\":\"NULLABLE\",\"name\":\"userId\",\"type\":\"STRING\"},{\"mode\":\"NULLABLE\",\"name\":\"lastName\",\"type\":\"STRING\"},{\"mode\":\"NULLABLE\",\"name\":\"firstName\",\"type\":\"STRING\"},{\"mode\":\"NULLABLE\",\"name\":\"gender\",\"type\":\"STRING\"},{\"mode\":\"NULLABLE\",\"name\":\"registration\",\"type\":\"STRING\"},{\"mode\":\"NULLABLE\",\"name\":\"event_timestamp\",\"type\":\"TIMESTAMP\"},{\"mode\":\"NULLABLE\",\"name\":\"hour\",\"type\":\"INTEGER\"},{\"mode\":\"NULLABLE\",\"name\":\"year\",\"type\":\"INTEGER\"},{\"mode\":\"NULLABLE\",\"name\":\"month\",\"type\":\"INTEGER\"},{\"mode\":\"NULLABLE\",\"name\":\"day\",\"type\":\"INTEGER\"}]",
+            "self_link": "https://bigquery.googleapis.com/bigquery/v2/projects/realestate-492305/datasets/music_stream_warehouse/tables/page_view_events",
+            "table_constraints": [],
+            "table_id": "page_view_events",
+            "time_partitioning": [],
+            "type": "EXTERNAL",
+            "view": []
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJzY2hlbWFfdmVyc2lvbiI6IjAifQ==",
+          "dependencies": [
+            "google_bigquery_dataset.warehouse"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "google_storage_bucket",
+      "name": "data_lake",
+      "provider": "provider[\"registry.terraform.io/hashicorp/google\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "autoclass": [],
+            "cors": [],
+            "custom_placement_config": [],
+            "default_event_based_hold": false,
+            "encryption": [],
+            "force_destroy": true,
+            "id": "music-stream-data-lake-realestate-492305",
+            "labels": {},
+            "lifecycle_rule": [
+              {
+                "action": [
+                  {
+                    "storage_class": "",
+                    "type": "Delete"
+                  }
+                ],
+                "condition": [
+                  {
+                    "age": 30,
+                    "created_before": "",
+                    "custom_time_before": "",
+                    "days_since_custom_time": 0,
+                    "days_since_noncurrent_time": 0,
+                    "matches_prefix": [],
+                    "matches_storage_class": [],
+                    "matches_suffix": [],
+                    "noncurrent_time_before": "",
+                    "num_newer_versions": 0,
+                    "with_state": "ANY"
+                  }
+                ]
+              }
+            ],
+            "location": "ASIA-SOUTHEAST1",
+            "logging": [],
+            "name": "music-stream-data-lake-realestate-492305",
+            "project": "realestate-492305",
+            "public_access_prevention": "inherited",
+            "requester_pays": false,
+            "retention_policy": [],
+            "self_link": "https://www.googleapis.com/storage/v1/b/music-stream-data-lake-realestate-492305",
+            "soft_delete_policy": [
+              {
+                "effective_time": "2026-05-05T10:15:28.583Z",
+                "retention_duration_seconds": 604800
+              }
+            ],
+            "storage_class": "STANDARD",
+            "timeouts": null,
+            "uniform_bucket_level_access": true,
+            "url": "gs://music-stream-data-lake-realestate-492305",
+            "versioning": [],
+            "website": []
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjo2MDAwMDAwMDAwMDAsInJlYWQiOjI0MDAwMDAwMDAwMCwidXBkYXRlIjoyNDAwMDAwMDAwMDB9fQ=="
+        }
+      ]
+    }
+  ],
+  "check_results": null
+}
