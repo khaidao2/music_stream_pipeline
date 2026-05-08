@@ -63,3 +63,4 @@ keys/
 .terraform.lock.hcl
 lesson/
 AGENTS.md
+dbt_music_stream/target/
