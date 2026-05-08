@@ -16,7 +16,6 @@ with DAG(
         task_id="dbt_run",
         bash_command="""
         cd /opt/dbt && \
-        dbt deps --profiles-dir . && \
         dbt run --profiles-dir .
         """
     )

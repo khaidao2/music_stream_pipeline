@@ -2,8 +2,8 @@ version: 2
 
 sources:
   - name: raw_gcs
-    database: realestate-492305
-    schema: music_stream_warehouse
+    database: "{{ env_var('GCP_PROJECT_ID') }}"
+    schema: "{{ env_var('GCP_BQ_DATASET_NAME') }}"
     tables:
       - name: listen_events
       - name: auth_events

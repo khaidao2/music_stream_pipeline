@@ -3,18 +3,17 @@ import requests
 import json
 import logging
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Configuration
-from config.config import Config
+SCHEMA_DIR = os.environ.get("SCHEMA_DIR", "/opt/spark/schemas")
+REGISTRY_URL = os.environ.get("REGISTRY_URL", "http://music_apicurio:8080/apis/registry/v2/groups/default/artifacts")
 
-SCHEMA_DIR = os.getenv("SCHEMA_DIR", Config.SPARK_SCHEMAS_DIR)
-REGISTRY_URL = os.getenv("REGISTRY_URL", "http://localhost:8095/apis/registry/v2/groups/default/artifacts")
+logger.info(f"Schema directory: {SCHEMA_DIR}")
+logger.info(f"Registry URL: {REGISTRY_URL}")
 
 def register_schemas():
     if not os.path.exists(SCHEMA_DIR):

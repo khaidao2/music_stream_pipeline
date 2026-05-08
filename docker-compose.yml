@@ -165,6 +165,9 @@ services:
       AIRFLOW__CORE__LOAD_EXAMPLES: "false"
       AIRFLOW__WEBSERVER__SECRET_KEY: "musicstream-secret-key-change-in-prod"
       AIRFLOW_CONN_GOOGLE_CLOUD_DEFAULT: "google-cloud-platform://?extra__google_cloud_platform__project=${GCP_PROJECT_ID}&extra__google_cloud_platform__key_path=${AIRFLOW_GCP_KEYFILE_PATH_IN_CONTAINER}"
+      GCP_PROJECT_ID: "${GCP_PROJECT_ID}"
+      GCP_BQ_DATASET_NAME: "${GCP_BQ_DATASET_NAME}"
+      AIRFLOW_GCP_KEYFILE_PATH_IN_CONTAINER: "${AIRFLOW_GCP_KEYFILE_PATH_IN_CONTAINER}"
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/logs:/opt/airflow/logs
@@ -200,6 +203,9 @@ services:
       AIRFLOW__CORE__LOAD_EXAMPLES: "false"
       AIRFLOW__WEBSERVER__SECRET_KEY: "musicstream-secret-key-change-in-prod"
       AIRFLOW_CONN_GOOGLE_CLOUD_DEFAULT: "google-cloud-platform://?extra__google_cloud_platform__project=${GCP_PROJECT_ID}&extra__google_cloud_platform__key_path=${AIRFLOW_GCP_KEYFILE_PATH_IN_CONTAINER}"
+      GCP_PROJECT_ID: "${GCP_PROJECT_ID}"
+      GCP_BQ_DATASET_NAME: "${GCP_BQ_DATASET_NAME}"
+      AIRFLOW_GCP_KEYFILE_PATH_IN_CONTAINER: "${AIRFLOW_GCP_KEYFILE_PATH_IN_CONTAINER}"
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/logs:/opt/airflow/logs

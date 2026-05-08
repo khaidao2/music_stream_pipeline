@@ -4,8 +4,8 @@ dbt_music_stream:
     dev:
       type: bigquery
       method: service-account
-      project: realestate-492305
-      dataset: music_stream_warehouse
+      project: "{{ env_var('GCP_PROJECT_ID') }}"
+      dataset: "{{ env_var('GCP_BQ_DATASET_NAME') }}"
       threads: 4
-      keyfile: /opt/airflow/keys/key.json
+      keyfile: "{{ env_var('AIRFLOW_GCP_KEYFILE_PATH_IN_CONTAINER') }}"
       location: asia-southeast1

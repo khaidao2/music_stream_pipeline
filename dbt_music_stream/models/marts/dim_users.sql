@@ -1,26 +1,37 @@
 {{ config(materialized='table') }}
 
-with listen_events as (
-    select * from {{ ref('stg_listen_events') }}
-),
-
-page_view_events as (
-    select * from {{ ref('stg_page_view_events') }}
+with page_view_events as (
+    select 
+        user_id,
+        first_name,
+        last_name,
+        gender,
+        level,
+        city,
+        state,
+        user_registration_at,
+        event_timestamp
+    from {{ ref('stg_page_view_events') }}
 ),
 
 auth_events as (
-    select * from {{ ref('stg_auth_events') }}
+    select 
+        user_id,
+        first_name,
+        last_name,
+        gender,
+        level,
+        city,
+        state,
+        user_registration_at,
+        event_timestamp
+    from {{ ref('stg_auth_events') }}
 ),
 
 all_users as (
-    select user_id, first_name, last_name, gender, level, city, state, user_registration_at, event_timestamp
-    from listen_events
+    select * from auth_events
     union all
-    select user_id, first_name, last_name, gender, level, city, state, user_registration_at, event_timestamp
-    from page_view_events
-    union all
-    select user_id, first_name, last_name, gender, level, city, state, user_registration_at, event_timestamp
-    from auth_events
+    select * from page_view_events
 ),
 
 latest_user_info as (

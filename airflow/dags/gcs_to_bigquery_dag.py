@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import datetime
+import logging
+import os
 
 from airflow.models.dag import DAG
 from airflow.operators.python import PythonOperator
@@ -13,11 +15,14 @@ from airflow.providers.google.cloud.operators.gcs import (
 from airflow.providers.google.cloud.transfers.gcs_to_bigquery import GCSToBigQueryOperator
 from airflow.providers.google.cloud.transfers.gcs_to_gcs import GCSToGCSOperator
 
-from config.config import Config
+logger = logging.getLogger(__name__)
 
-GCP_PROJECT_ID = Config.GCP_PROJECT_ID
-GCS_BUCKET = Config.GCP_GCS_BUCKET_NAME
-BQ_DATASET = Config.GCP_BQ_DATASET_NAME
+GCP_PROJECT_ID = os.environ.get("GCP_PROJECT_ID")
+GCS_BUCKET = os.environ.get("GCP_GCS_BUCKET_NAME")
+BQ_DATASET = os.environ.get("GCP_BQ_DATASET_NAME")
+
+logger.info(f"GCS Bucket: {GCS_BUCKET}")
+logger.info(f"BigQuery Dataset: {BQ_DATASET}")
 
 
 # -------------------- SCHEMAS --------------------

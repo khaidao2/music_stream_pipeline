@@ -1,14 +1,59 @@
 import os
+import logging
+from datetime import datetime
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import from_json, col, from_unixtime, to_timestamp, year, month, dayofmonth, hour
+from pyspark.sql.functions import from_json, col, from_unixtime, to_timestamp, year, month, dayofmonth, hour, current_timestamp
 from pyspark.sql.types import StructType, StructField, StringType, LongType, DoubleType, IntegerType, BooleanType
 import json
 
-from config.config import Config
+KAFKA_BROKER = os.environ.get("KAFKA_BOOTSTRAP_SERVERS", "music_kafka:29092")
+GCS_BUCKET = os.environ.get("GCS_BUCKET", "music-stream-data-lake-realestate-492305")
+BASE_DIR = "/opt/spark"
 
-KAFKA_BROKER = os.environ.get("KAFKA_BOOTSTRAP_SERVERS", Config.KAFKA_BROKER_LIST)
-GCS_BUCKET = Config.GCP_GCS_BUCKET_NAME
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+LOG_PATH = f"gs://{GCS_BUCKET}/logs/pipeline"
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+class GCSLogHandler(logging.Handler):
+    def __init__(self, spark, log_path):
+        super().__init__()
+        self.spark = spark
+        self.log_path = log_path
+        self.records = []
+
+    def emit(self, record):
+        self.records.append({
+            "timestamp": datetime.now().isoformat(),
+            "level": record.levelname,
+            "message": self.format(record)
+        })
+
+    def flush_to_gcs(self, filename):
+        if not self.records:
+            return
+        df = self.spark.createDataFrame(self.records)
+        output_path = f"{self.log_path}/{filename}"
+        df.coalesce(1).write.mode("append").parquet(output_path)
+        self.records = []
+
+gcs_handler = None
+
+def setup_logging(spark):
+    global gcs_handler
+    gcs_handler = GCSLogHandler(spark, LOG_PATH)
+    gcs_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+
+    root_logger = logging.getLogger()
+    root_logger.addHandler(gcs_handler)
+
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+    root_logger.addHandler(console_handler)
+
+    root_logger.info(f"Kafka Broker: {KAFKA_BROKER}")
+    root_logger.info(f"GCS Bucket: {GCS_BUCKET}")
+    root_logger.info(f"Log Path: {LOG_PATH}")
 
 def load_schema(topic_name):
     path = os.path.join(BASE_DIR, "schemas", f"{topic_name}.avsc")
@@ -39,7 +84,7 @@ def load_schema(topic_name):
 
 def process_topic(spark, topic_name):
     schema = load_schema(topic_name)
-    
+
     df_raw = spark.readStream \
         .format("kafka") \
         .option("kafka.bootstrap.servers", KAFKA_BROKER) \
@@ -60,15 +105,28 @@ def process_topic(spark, topic_name):
     output_path = f"gs://{GCS_BUCKET}/raw/{topic_name}"
     checkpoint_path = f"gs://{GCS_BUCKET}/checkpoints/{topic_name}"
 
-    print(f"Starting stream for {topic_name} -> {output_path}")
+    logging.info(f"Starting stream for {topic_name} -> {output_path}")
 
-    return df_parsed.writeStream \
+    query = df_parsed.writeStream \
         .outputMode("append") \
         .format("parquet") \
         .option("path", output_path) \
         .option("checkpointLocation", checkpoint_path) \
         .partitionBy("year", "month", "day") \
+        .trigger(processingTime="1 minute") \
         .start()
+
+    return query
+
+
+def write_logs_periodically(spark, batch_id):
+    if gcs_handler and gcs_handler.records:
+        log_df = spark.createDataFrame(gcs_handler.records)
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        log_df.coalesce(1).write.mode("append").parquet(f"{LOG_PATH}/batch_{batch_id}_{timestamp}.parquet")
+        logging.info(f"Flushed {len(gcs_handler.records)} log records to GCS")
+        gcs_handler.records = []
+
 
 def main():
     spark = SparkSession.builder \
@@ -81,8 +139,18 @@ def main():
 
     spark.sparkContext.setLogLevel("WARN")
 
+    setup_logging(spark)
+    logging.info("Spark session created successfully")
+
     topics = ["listen_events", "auth_events", "page_view_events"]
     queries = [process_topic(spark, t) for t in topics]
+
+    batch_counter = 0
+    while any(q.isActive for q in queries):
+        import time
+        time.sleep(60)
+        batch_counter += 1
+        write_logs_periodically(spark, batch_counter)
 
     spark.streams.awaitAnyTermination()
 
