@@ -11,3 +11,4 @@ select
     city,
     state
 from {{ ref('stg_listen_events') }}
+where user_id is not null

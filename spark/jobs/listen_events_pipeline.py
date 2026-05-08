@@ -4,8 +4,10 @@ from pyspark.sql.functions import from_json, col, from_unixtime, to_timestamp, y
 from pyspark.sql.types import StructType, StructField, StringType, LongType, DoubleType, IntegerType, BooleanType
 import json
 
-KAFKA_BROKER = os.environ.get("KAFKA_BOOTSTRAP_SERVERS", "music_kafka:29092")
-GCS_BUCKET = "music-stream-data-lake-realestate-492305"
+from config.config import Config
+
+KAFKA_BROKER = os.environ.get("KAFKA_BOOTSTRAP_SERVERS", Config.KAFKA_BROKER_LIST)
+GCS_BUCKET = Config.GCP_GCS_BUCKET_NAME
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 def load_schema(topic_name):
@@ -24,7 +26,6 @@ def load_schema(topic_name):
     }
     fields = []
     for f in schema_dict['fields']:
-        # Extract the actual type from Avro schema array (e.g., ["null", "double"] -> "double")
         field_type = f['type']
         if isinstance(field_type, list):
             actual_type = next((t for t in field_type if t != "null"), "string")
@@ -70,7 +71,6 @@ def process_topic(spark, topic_name):
         .start()
 
 def main():
-    # Sử dụng file JAR Shaded cục bộ để tránh lỗi Guava
     spark = SparkSession.builder \
         .appName("MusicStream_to_GCS_Pipeline") \
         .config("spark.jars", "/opt/spark/libs/gcs-connector.jar") \

@@ -48,8 +48,26 @@ resource "google_storage_bucket_object" "processed_auth_events" {
 }
 
 resource "google_storage_bucket_object" "processed_page_view_events" {
+    bucket = google_storage_bucket.data_lake.name
+    name   = "processed/page_view_events/.gitkeep"
+    content = "placeholder"
+  }
+# 1.2. GCS Placeholder objects for raw folders
+resource "google_storage_bucket_object" "raw_listen_events" {
   bucket = google_storage_bucket.data_lake.name
-  name   = "processed/page_view_events/.gitkeep"
+  name   = "raw/listen_events/.gitkeep"
+  content = "placeholder"
+}
+
+resource "google_storage_bucket_object" "raw_auth_events" {
+  bucket = google_storage_bucket.data_lake.name
+  name   = "raw/auth_events/.gitkeep"
+  content = "placeholder"
+}
+
+resource "google_storage_bucket_object" "raw_page_view_events" {
+  bucket = google_storage_bucket.data_lake.name
+  name   = "raw/page_view_events/.gitkeep"
   content = "placeholder"
 }
 

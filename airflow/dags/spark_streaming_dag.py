@@ -1,6 +1,7 @@
 from airflow import DAG
 from airflow.operators.bash import BashOperator
 from datetime import datetime, timedelta
+from config.config import Config
 
 default_args = {
     'owner': 'airflow',
@@ -20,14 +21,17 @@ with DAG(
     catchup=False,
     tags=['spark', 'streaming', 'gcs'],
 ) as dag:
+    SPARK_LIBS_DIR = Config.SPARK_LIBS_DIR
+    SPARK_JOBS_DIR = Config.SPARK_JOBS_DIR
+
     run_spark_job = BashOperator(
         task_id='run_spark_streaming_job',
-        bash_command="""
+        bash_command=f"""
             docker exec -t music_spark_master /opt/spark/bin/spark-submit \
               --conf spark.jars.ivy=/tmp/.ivy2 \
-              --jars /opt/spark/libs/gcs-connector.jar \
+              --jars {SPARK_LIBS_DIR}/gcs-connector.jar \
               --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.1,org.apache.spark:spark-avro_2.12:3.5.1 \
-              /opt/spark/jobs/listen_events_pipeline.py
+              {SPARK_JOBS_DIR}/listen_events_pipeline.py
         """
     )
 

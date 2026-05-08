@@ -1,13 +1,43 @@
 {{ config(materialized='table') }}
 
-with listen_data as (
+with listen_events as (
     select * from {{ ref('stg_listen_events') }}
+),
+
+page_view_events as (
+    select * from {{ ref('stg_page_view_events') }}
+),
+
+auth_events as (
+    select * from {{ ref('stg_auth_events') }}
+),
+
+all_users as (
+    select user_id, first_name, last_name, gender, level, city, state, user_registration_at, event_timestamp
+    from listen_events
+    union all
+    select user_id, first_name, last_name, gender, level, city, state, user_registration_at, event_timestamp
+    from page_view_events
+    union all
+    select user_id, first_name, last_name, gender, level, city, state, user_registration_at, event_timestamp
+    from auth_events
+),
+
+latest_user_info as (
+    select 
+        *,
+        row_number() over (partition by user_id order by event_timestamp desc) as rn
+    from all_users
 )
 
-select distinct
+select 
     user_id,
-    -- Giả sử lastName/firstName có trong raw but not in stg yet, 
-    -- I should update stg or join here. Let's assume we take them from raw.
-    -- For simplicity, let's just take unique users from stg.
+    first_name,
+    last_name,
+    gender,
+    level,
+    city,
+    state,
     user_registration_at
-from listen_data
+from latest_user_info
+where rn = 1

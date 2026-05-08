@@ -1,0 +1,11 @@
+dbt_music_stream:
+  target: dev
+  outputs:
+    dev:
+      type: bigquery
+      method: service-account
+      project: realestate-492305
+      dataset: music_stream_warehouse
+      threads: 4
+      keyfile: /opt/airflow/keys/key.json
+      location: asia-southeast1

@@ -21,7 +21,6 @@ select
     lon,
     lat,
     cast(registration as timestamp) as user_registration_at,
-    -- Trích xuất thời gian để tiện phân vùng sau này
     extract(year from cast(ts as timestamp)) as event_year,
     extract(month from cast(ts as timestamp)) as event_month,
     extract(day from cast(ts as timestamp)) as event_day
